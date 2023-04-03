@@ -19,7 +19,7 @@ namespace WebTerminalsServer.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Code = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Code = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     IsDeparture = table.Column<bool>(type: "bit", nullable: false),
                     Company = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsCritical = table.Column<bool>(type: "bit", nullable: false)
@@ -90,6 +90,13 @@ namespace WebTerminalsServer.Migrations
                     { 8, null, 8, 8 },
                     { 9, null, 0, 9 }
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Flights_Code",
+                table: "Flights",
+                column: "Code",
+                unique: true,
+                filter: "[Code] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Legs_FlightId",

@@ -1,21 +1,23 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography;
+using System.Runtime.InteropServices;
 using WebTerminalsServer.Dal;
 using WebTerminalsServer.Logic;
 using WebTerminalsServer.Models;
 
-namespace WebTerminalsServer.Services
+namespace WebTerminalsServer.Repositories
 {
     public class AirportRepository : IAirPortRepository
     {
+        private readonly IDbContextFactory<DataContext> _contextFactory;
         private readonly DataContext _dataContext;
 
         static object obj;
-        public AirportRepository(DataContext dataContext)
+        public AirportRepository(IDbContextFactory<DataContext> contextFactory)
         {
-            if (obj == null)
-                obj = new object();
-            _dataContext = dataContext;
+            _contextFactory = contextFactory;
+            //if (obj == null)
+            //    obj = new object();
+            //_dataContext = dataContext;
         }
 
 
@@ -54,22 +56,29 @@ namespace WebTerminalsServer.Services
                 //    _dataContext.Legs.Update(leg);
                 //    _dataContext.SaveChangesAsync();
                 //}
-                _dataContext.Legs.Update(leg);
-                await _dataContext.SaveChangesAsync();
+                //_dataContext.Legs.Update(leg);
+                //await _dataContext.SaveChangesAsync();
+                using (var context = _contextFactory.CreateDbContext())
+                {
+                    context.Legs.Update(leg);
+                    await context.SaveChangesAsync();
+                }
             }
             catch (Exception ex)
             {
                 throw;
             }
-             
+
         }
 
         public LegModel GetLegModel(int legNumber)
         {
             try
             {
-                lock (obj)
-                    return _dataContext.Legs.Where(l => l.Number == legNumber).FirstOrDefault();
+                using(var datacontext = _contextFactory.CreateDbContext())
+                {
+                    return datacontext.Legs.Where(l => l.Number == legNumber).FirstOrDefault();
+                }
             }
             catch (Exception ex)
             {
@@ -95,9 +104,15 @@ namespace WebTerminalsServer.Services
 
 
 
-        public Task AddFlightAsync(Flight flight)
+        public async Task AddFlightAsync(Flight flight)
         {
-            throw new NotImplementedException();
+             //UpdateLegs(new List<LegModel>());
+       
+            using (var dataContext = _contextFactory.CreateDbContext())
+            {
+                dataContext.Flights.Add(flight);
+                await dataContext.SaveChangesAsync();
+            }          
         }
 
         public Task RemoveFlight(Flight flight)
@@ -117,7 +132,11 @@ namespace WebTerminalsServer.Services
 
         public IEnumerable<LegModel> GetLegModels()
         {
-            return _dataContext.Legs!.ToList();
+            using (var context = _contextFactory.CreateDbContext())
+            {
+                return context.Legs!.ToList();
+            }
+
         }
 
         public async void UpdateLegs(IEnumerable<LegModel> legModels)
@@ -129,20 +148,38 @@ namespace WebTerminalsServer.Services
                 //    _dataContext.Legs.UpdateRange(legModels);
                 //    _dataContext.SaveChangesAsync();
                 //}
-                _dataContext.Legs.UpdateRange(legModels);
-                await _dataContext.SaveChangesAsync();
+                using (var context = _contextFactory.CreateDbContext())
+                {
+                    context.Legs.UpdateRange(legModels);
+                    await context.SaveChangesAsync(); //exception here
+                }
             }
             catch (Exception ex)
-            {
+              {
 
                 throw;
             }
-            
+
         }
 
         public async Task<IEnumerable<LegModel>> AsyncGetLegModels()
         {
-            return await _dataContext.Legs.ToListAsync();
+            using (var context = _contextFactory.CreateDbContext())
+            {
+                return await context.Legs.ToListAsync();
+            }
+
+        }
+
+
+        public Task<Flight> GetFlightByCodeAsync(string code)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task AddOrUpdateLegWithFlightAsync(LegModel leg)
+        {
+            throw new NotImplementedException();
         }
     }
 }

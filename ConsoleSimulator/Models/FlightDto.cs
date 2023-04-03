@@ -4,7 +4,7 @@
     public class FlightDto
     {
         public string? Code { get; set; }
-        public FlightDto() => Code = Guid.NewGuid().ToString("N").Substring(0,6);
+        public FlightDto() => Code = Guid.NewGuid().ToString();
         public bool IsDeparture { get; set; }
 
         public string Company { get; set; }

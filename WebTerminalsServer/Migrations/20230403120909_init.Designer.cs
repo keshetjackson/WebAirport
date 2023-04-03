@@ -12,7 +12,7 @@ using WebTerminalsServer.Dal;
 namespace WebTerminalsServer.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230329174502_init")]
+    [Migration("20230403120909_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -34,7 +34,7 @@ namespace WebTerminalsServer.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Code")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Company")
                         .IsRequired()
@@ -47,6 +47,10 @@ namespace WebTerminalsServer.Migrations
                         .HasColumnType("bit");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasFilter("[Code] IS NOT NULL");
 
                     b.ToTable("Flights");
                 });

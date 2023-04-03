@@ -2,7 +2,7 @@
 using WebTerminalsServer.Logic;
 using WebTerminalsServer.Models;
 
-namespace WebTerminalsServer.Services
+namespace WebTerminalsServer.Repositories
 {
     public interface IAirPortRepository
     {
@@ -19,5 +19,7 @@ namespace WebTerminalsServer.Services
         IEnumerable<LegModel> GetLegModels();
         Task<IEnumerable<LegModel>> AsyncGetLegModels();
         void UpdateLegs(IEnumerable<LegModel> legModels);
+        Task<Flight> GetFlightByCodeAsync(string code);
+        Task AddOrUpdateLegWithFlightAsync(LegModel leg);
     }
 }

@@ -1,10 +1,10 @@
 ﻿using WebTerminalsServer.Models;
 
-namespace WebTerminalsServer.Logic
+namespace WebTerminalsServer.Services
 {
-    public interface IAirport
+    public interface IAirportService
     {
-         void ProccessFlight(Flight flight);
+        void ProccessFlight(Flight flight);
         void AddLandingFLight(Flight flight);
         void AddDepartureFlight(Flight flight);
         Task<IEnumerable<Flight>> GetFlights();

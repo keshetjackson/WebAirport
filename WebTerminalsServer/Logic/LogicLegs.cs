@@ -1,13 +1,13 @@
 ﻿using System.Diagnostics;
 using WebTerminalsServer.Models;
-using WebTerminalsServer.Services;
+using WebTerminalsServer.Repositories;
 
 namespace WebTerminalsServer.Logic
 {
 
     public class Leg
     {
-        protected IAirPortRepository service;
+        protected IAirPortRepository _repository;
 
         public Leg()
         {
@@ -19,22 +19,25 @@ namespace WebTerminalsServer.Logic
         public Leg? NextLeg { get; set; }
         public LegModel legModel { get; set; }
 
-        public virtual Flight flight { get; set; }
+        public Flight Flight { get; set; }
 
         public Flight GetFlight()
         {
-            return this.flight;
+            return Flight;
         }
         public void SetFlight(Flight flight)
         {
-            this.flight = flight;
-
+            Flight = flight;
             //if (legModel == null)
             //{
             //    legModel = LegFactory<Leg1>.GetInstance(service).legModel;
             //}
             if(legModel != null)
-            legModel.Flight = flight;
+            {
+                legModel.Flight = flight;
+                _repository.UpdateLeg(legModel);
+            }
+            
         }
 
      
@@ -43,7 +46,7 @@ namespace WebTerminalsServer.Logic
         {
             SetFlight(flight);
             //service.UpdateLeg(legModel);
-            Console.WriteLine($"flight {this.flight.Code} is in {this.GetType().Name}");
+            Console.WriteLine($"flight {Flight.Code} is in {this.GetType().Name}");
             NextTerminal(flight);
         }
 
@@ -75,38 +78,40 @@ namespace WebTerminalsServer.Logic
         //        _service = service;
         //}
 
-        public void InitLeg(IAirPortRepository service)
+        public void InitLeg(IAirPortRepository repo)
         {
-            this.service = service;
-            var type = this.GetType().ToString();
-            int number = int.Parse(type.Substring(type.Length - 1));
-            this.legModel = service.GetLegModel(number);
-            //if (this.legModel == null)
-            //    this.legModel = null;
-            //else
-            //    this.legModel = this.legModel;
-
+            var typeName = this.GetType().Name;
+            int number = int.Parse(typeName.Substring(typeName.Length - 1));
+            Number = number;
+            _repository = repo;
+            legModel = _repository.GetLegModel(Number);
             if (NextLeg != null)
             {
-                legModel.NextLeg = service.LegToEnum(NextLeg);
+                legModel.NextLeg = _repository.LegToEnum(NextLeg);
             }
         }
     }
 
     public class Departures : Leg
     {
-
-
-        public Departures(/*IAirPortRepository service*/)
+        public Departures(IAirPortRepository repo)
         {
             flights = new PriorityQueue<Flight, bool>();
             //SetService(service);
+            NextLeg = LegFactory<Leg6>.GetInstance(repo);
+            NextLeg = LegFactory<Leg7>.GetInstance(repo);
+            //this._repository = _repository;
+        }
+
+        public Departures()
+        {
+            flights = new PriorityQueue<Flight, bool>();
             NextLeg = LegFactory<Leg6>.GetInstance();
             NextLeg = LegFactory<Leg7>.GetInstance();
-            this.service = service;
+            //this._repository = _repository;
         }
         private readonly PriorityQueue<Flight, bool>? flights;
-        private readonly IAirPortRepository service;
+        //private readonly IAirPortRepository _repository;
 
         
         public override void NextTerminal(Flight flight)
@@ -186,6 +191,11 @@ namespace WebTerminalsServer.Logic
             NextLeg = LegFactory<Leg1>.GetInstance();
             //InitDb(dataContext);
         }
+        public Arrivals(IAirPortRepository repo)
+        {
+            flights = new PriorityQueue<Flight, bool>();
+            NextLeg = LegFactory<Leg1>.GetInstance(repo);
+        }
 
         private readonly PriorityQueue<Flight, bool> flights;
 
@@ -201,9 +211,9 @@ namespace WebTerminalsServer.Logic
 
     public abstract class MixedLeg : Leg
     {
-        public MixedLeg(IAirPortRepository service)
+        public MixedLeg(IAirPortRepository repo)
         {
-            this.service = service;
+            _repository = repo;
         }
         public MixedLeg()
         {
@@ -260,10 +270,10 @@ namespace WebTerminalsServer.Logic
             NextLeg = LegFactory<Leg2>.GetInstance();
         }
 
-        public Leg1(IAirPortRepository service)
+        public Leg1(IAirPortRepository repo)
         {
-            InitLeg(service);
-            NextLeg = LegFactory<Leg2>.GetInstance(service);
+            InitLeg(repo);
+            NextLeg = LegFactory<Leg2>.GetInstance(repo);
         }
     }
 
@@ -276,10 +286,10 @@ namespace WebTerminalsServer.Logic
             Number = 2;
             NextLeg = LegFactory<Leg3>.GetInstance();
         }
-        public Leg2(IAirPortRepository service)
+        public Leg2(IAirPortRepository repo)
         {
-            InitLeg(service);
-            NextLeg = LegFactory<Leg3>.GetInstance(service);
+            InitLeg(repo);
+            NextLeg = LegFactory<Leg3>.GetInstance(repo);
         }
     }
 
@@ -292,10 +302,10 @@ namespace WebTerminalsServer.Logic
             NextLeg = LegFactory<Leg4>.GetInstance();
         }
 
-        public Leg3(IAirPortRepository service)
+        public Leg3(IAirPortRepository repo)
         {
-            InitLeg(service);
-            NextLeg = LegFactory<Leg4>.GetInstance(service);
+            InitLeg(repo);
+            NextLeg = LegFactory<Leg4>.GetInstance(repo);
         }
     }
 
@@ -308,15 +318,14 @@ namespace WebTerminalsServer.Logic
         {
             Number = 4;
         }
-        public Leg4(IAirPortRepository service)
+        public Leg4(IAirPortRepository repo)
         {
             //NextLeg = LegFactory<Leg5>.GetInstance(service);
             if (!isExists)
             {
                 isExists = true;
-                InitLeg(service);
+                InitLeg(repo);
             }
-            this.service = service;
         }
         public override void AddFlight(Flight flight)
         {
@@ -324,12 +333,12 @@ namespace WebTerminalsServer.Logic
             Console.WriteLine($"flight {GetFlight().Code} is in {this.GetType().Name}");
             if (flight.IsDeparture)
             {
-                NextLeg = LegFactory<Leg9>.GetInstance(/*service*/);
+                NextLeg = LegFactory<Leg9>.GetInstance(_repository);
                 //service.UpdateLeg(legModel);
             }
             else
             {
-                NextLeg = LegFactory<Leg5>.GetInstance(/*service*/); 
+                NextLeg = LegFactory<Leg5>.GetInstance(_repository); 
                 //service.UpdateLeg(legModel);
             }
             NextTerminal(flight);
@@ -344,17 +353,16 @@ namespace WebTerminalsServer.Logic
             Number = 5;
             NextLeg = LegFactory<Leg6>.GetInstance();
         }
-        public Leg5(IAirPortRepository service)
+        public Leg5(IAirPortRepository repo)
         {
-            InitLeg(service);
-            NextLeg = LegFactory<Leg6>.GetInstance(service);
-            this.service = service;
+            InitLeg(repo);
+            NextLeg = LegFactory<Leg6>.GetInstance(repo);
         }
 
         public void ChangeLeg()
         {
-            if (this.NextLeg.GetType() == typeof(Leg6)) NextLeg = LegFactory<Leg7>.GetInstance(service);
-            else NextLeg = LegFactory<Leg6>.GetInstance(service);
+            if (this.NextLeg.GetType() == typeof(Leg6)) NextLeg = LegFactory<Leg7>.GetInstance(_repository);
+            else NextLeg = LegFactory<Leg6>.GetInstance(_repository);
         }
 
         public override void AddFlight(Flight flight)
@@ -415,10 +423,10 @@ namespace WebTerminalsServer.Logic
         public override int TimeToWait => 15;
 
 
-        public Leg7(IAirPortRepository service): base(service)
+        public Leg7(IAirPortRepository repo)
         {
-            InitLeg(service);
-            NextLeg = LegFactory<Leg8>.GetInstance(service);
+            InitLeg(repo);
+            NextLeg = LegFactory<Leg8>.GetInstance(repo);
         }
     }
 
@@ -448,9 +456,9 @@ namespace WebTerminalsServer.Logic
         }
         public override int TimeToWait => 20;
 
-        public Leg9(IAirPortRepository service)
+        public Leg9(IAirPortRepository repo)
         {
-            InitLeg(service);
+            InitLeg(repo);
         }
         public override void AddFlight(Flight flight)
         {

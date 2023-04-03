@@ -1,5 +1,5 @@
 ﻿using System.Collections.Concurrent;
-using WebTerminalsServer.Services;
+using WebTerminalsServer.Repositories;
 
 namespace WebTerminalsServer.Logic
 {

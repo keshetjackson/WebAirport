@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebTerminalsServer.Dal;
-using WebTerminalsServer.Logic;
 using WebTerminalsServer.Models;
+using WebTerminalsServer.Repositories;
 using WebTerminalsServer.Services;
 
 namespace WebTerminalsServer.Controllers
@@ -11,13 +11,13 @@ namespace WebTerminalsServer.Controllers
     [ApiController]
     public class FlightsController : ControllerBase
     {
-        private readonly IAirport _airport;
+        private readonly IAirportService _airportService;
         private readonly IAirPortRepository _airportRepository;
 
 
-        public FlightsController(IAirport airport, IAirPortRepository airportRepository)
+        public FlightsController(IAirportService airport, IAirPortRepository airportRepository)
         {
-            this._airport = airport;
+            this._airportService = airport;
             this._airportRepository = airportRepository;
         }
 
@@ -27,7 +27,7 @@ namespace WebTerminalsServer.Controllers
         [HttpPost]
         public async Task AddFlight(Flight flight)
         {
-             _airport.ProccessFlight(flight);
+             _airportService.ProccessFlight(flight);
         }
     }
 }

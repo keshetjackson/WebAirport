@@ -16,6 +16,11 @@ namespace WebTerminalsServer.Dal
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Flight>(entity =>
+            {
+                entity.HasIndex(e => e.Code).IsUnique();
+            });
+
             modelBuilder.Entity<LegModel>().HasData(
                 new LegModel { Id = 1, Number = 1, NextLeg = LegType.Two },
                 new LegModel { Id = 2, Number = 2, NextLeg = LegType.Three },

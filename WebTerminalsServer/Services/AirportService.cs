@@ -1,15 +1,13 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
-using System.Collections;
 using System.Timers;
-using WebTerminalsServer.Dal;
 using WebTerminalsServer.Hubs;
+using WebTerminalsServer.Logic;
 using WebTerminalsServer.Models;
-using WebTerminalsServer.Services;
+using WebTerminalsServer.Repositories;
 
-namespace WebTerminalsServer.Logic
+namespace WebTerminalsServer.Services
 {
-    public class Airport : IAirport
+    public class AirportService : IAirportService
     {
         Arrivals arrivals { get; set; }
         Departures departures { get; set; }
@@ -22,33 +20,40 @@ namespace WebTerminalsServer.Logic
         //private readonly PriorityQueue<Flight, bool> departures;
         //private readonly PriorityQueue<Flight, bool> arrivals;
 
-        public Airport(IAirPortRepository repo, IHubContext<AirportHub> hubContext)
+        public AirportService(IAirPortRepository repo, IHubContext<AirportHub> hubContext)
         {
             _repository = repo;
-            _hubContext = hubContext;
-            Legs = new List<Leg>()
-            {
-                LegFactory<Leg1>.GetInstance(),
-                LegFactory<Leg2>.GetInstance(),
-                LegFactory<Leg3>.GetInstance(),
-                LegFactory<Leg4>.GetInstance(),
-                LegFactory<Leg5>.GetInstance(),
-                LegFactory<Leg6>.GetInstance(),
-                LegFactory<Leg7>.GetInstance(),
-                LegFactory<Leg8>.GetInstance(),
-                LegFactory<Leg9>.GetInstance(),
-            };
-            _models = new List<LegModel>();
-            arrivals = new Arrivals();
-            departures = new Departures();
-            InitLegModels();
-            _timer = new System.Timers.Timer();
-            InitClientUpdates();
+            arrivals = new Arrivals(repo);
+            departures = new Departures(repo);
         }
+
+        //public AirportService(IAirPortRepository repo, IHubContext<AirportHub> hubContext)
+        //{
+        //    _repository = repo;
+        //    _hubContext = hubContext;
+        //    Legs = new List<Leg>()
+        //    {
+        //        LegFactory<Leg1>.GetInstance(),
+        //        LegFactory<Leg2>.GetInstance(),
+        //        LegFactory<Leg3>.GetInstance(),
+        //        LegFactory<Leg4>.GetInstance(),
+        //        LegFactory<Leg5>.GetInstance(),
+        //        LegFactory<Leg6>.GetInstance(),
+        //        LegFactory<Leg7>.GetInstance(),
+        //        LegFactory<Leg8>.GetInstance(),
+        //        LegFactory<Leg9>.GetInstance(),
+        //    };
+        //    _models = new List<LegModel>();
+        //    arrivals = new Arrivals();
+        //    departures = new Departures();
+        //    InitLegModels();
+        //    _timer = new System.Timers.Timer();
+        //    InitClientUpdates();
+        //}
 
         private void InitClientUpdates()
         {
-            _timer.Interval = 500; // 0.5 sec
+            _timer.Interval = 1000; // 0.5 sec
             _timer.Elapsed += UpdateClient;
             _timer.Start();
         }
@@ -69,6 +74,8 @@ namespace WebTerminalsServer.Logic
         {
             try
             {
+                await _repository.AddFlightAsync(flight);
+
                 if (flight.IsDeparture) AddDepartureFlight(flight);
                 else AddLandingFLight(flight);
             }
@@ -104,7 +111,7 @@ namespace WebTerminalsServer.Logic
             throw new NotImplementedException();
         }
 
-        public  async Task<IEnumerable<LegModel>> GetLegs()
+        public async Task<IEnumerable<LegModel>> GetLegs()
         {
             return await _repository.AsyncGetLegModels();
         }
