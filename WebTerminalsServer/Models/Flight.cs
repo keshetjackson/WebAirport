@@ -10,7 +10,6 @@ namespace WebTerminalsServer.Models
         public bool IsDeparture { get; set; }
         public string Company { get; set; }
         public bool IsCritical { get; set; }
-        public virtual Leg CurrentLeg { get; set; }
 
     }
 }

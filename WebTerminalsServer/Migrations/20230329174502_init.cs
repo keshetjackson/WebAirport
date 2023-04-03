@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace WebTerminalsServer.Migrations
 {
     /// <inheritdoc />
@@ -12,7 +14,7 @@ namespace WebTerminalsServer.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "flights",
+                name: "Flights",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -24,94 +26,98 @@ namespace WebTerminalsServer.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_flights", x => x.Id);
+                    table.PrimaryKey("PK_Flights", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "legs",
+                name: "Legs",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    NextLegId = table.Column<int>(type: "int", nullable: true),
-                    flightId = table.Column<int>(type: "int", nullable: false)
+                    Number = table.Column<int>(type: "int", nullable: false),
+                    FlightId = table.Column<int>(type: "int", nullable: true),
+                    NextLeg = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_legs", x => x.Id);
+                    table.PrimaryKey("PK_Legs", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_legs_flights_flightId",
-                        column: x => x.flightId,
-                        principalTable: "flights",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_legs_legs_NextLegId",
-                        column: x => x.NextLegId,
-                        principalTable: "legs",
+                        name: "FK_Legs_Flights_FlightId",
+                        column: x => x.FlightId,
+                        principalTable: "Flights",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
-                name: "logs",
+                name: "Logs",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    flightId = table.Column<int>(type: "int", nullable: false),
-                    legId = table.Column<int>(type: "int", nullable: false),
+                    FlightId = table.Column<int>(type: "int", nullable: true),
+                    LegId = table.Column<int>(type: "int", nullable: true),
                     In = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Out = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_logs", x => x.Id);
+                    table.PrimaryKey("PK_Logs", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_logs_flights_flightId",
-                        column: x => x.flightId,
-                        principalTable: "flights",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        name: "FK_Logs_Flights_FlightId",
+                        column: x => x.FlightId,
+                        principalTable: "Flights",
+                        principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_logs_legs_legId",
-                        column: x => x.legId,
-                        principalTable: "legs",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        name: "FK_Logs_Legs_LegId",
+                        column: x => x.LegId,
+                        principalTable: "Legs",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.InsertData(
+                table: "Legs",
+                columns: new[] { "Id", "FlightId", "NextLeg", "Number" },
+                values: new object[,]
+                {
+                    { 1, null, 2, 1 },
+                    { 2, null, 4, 2 },
+                    { 3, null, 8, 3 },
+                    { 4, null, 16, 4 },
+                    { 5, null, 32, 5 },
+                    { 6, null, 128, 6 },
+                    { 7, null, 128, 7 },
+                    { 8, null, 8, 8 },
+                    { 9, null, 0, 9 }
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_legs_flightId",
-                table: "legs",
-                column: "flightId");
+                name: "IX_Legs_FlightId",
+                table: "Legs",
+                column: "FlightId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_legs_NextLegId",
-                table: "legs",
-                column: "NextLegId");
+                name: "IX_Logs_FlightId",
+                table: "Logs",
+                column: "FlightId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_logs_flightId",
-                table: "logs",
-                column: "flightId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_logs_legId",
-                table: "logs",
-                column: "legId");
+                name: "IX_Logs_LegId",
+                table: "Logs",
+                column: "LegId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "logs");
+                name: "Logs");
 
             migrationBuilder.DropTable(
-                name: "legs");
+                name: "Legs");
 
             migrationBuilder.DropTable(
-                name: "flights");
+                name: "Flights");
         }
     }
 }

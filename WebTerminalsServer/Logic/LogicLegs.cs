@@ -1,45 +1,23 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics;
-using WebTerminalsServer.Dal;
+﻿using System.Diagnostics;
 using WebTerminalsServer.Models;
 using WebTerminalsServer.Services;
 
 namespace WebTerminalsServer.Logic
 {
-    public class LegFactory<T> where T : Leg
-    {
-        private static readonly Dictionary<string, T> instances = new Dictionary<string, T>();
 
-        private LegFactory() { }
-
-        public static T GetInstance(IAirPortService service)
-        {
-            var typeName = typeof(T).Name;
-            if (!instances.ContainsKey(typeName))
-            {
-                lock (instances)
-                {
-                    if (!instances.ContainsKey(typeName))
-                    {
-                        var instance = (T)Activator.CreateInstance(typeof(T), service);
-                        instances.Add(typeName, instance);
-                    }
-                }
-            }
-            return instances[typeName];
-        }
-    }
     public class Leg
     {
-        //[DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public int Id { get; set; }
-        [NotMapped]
-        //public DataContext _dbContext { get; set; }
-        private IAirPortService _service;
+        protected IAirPortRepository service;
+
+        public Leg()
+        {
+            
+        }
+        public int Number { get; set; }
         public virtual int TimeToWait => 6;
-        
+
         public Leg? NextLeg { get; set; }
+        public LegModel legModel { get; set; }
 
         public virtual Flight flight { get; set; }
 
@@ -49,12 +27,22 @@ namespace WebTerminalsServer.Logic
         }
         public void SetFlight(Flight flight)
         {
-            flight = flight;
+            this.flight = flight;
+
+            //if (legModel == null)
+            //{
+            //    legModel = LegFactory<Leg1>.GetInstance(service).legModel;
+            //}
+            if(legModel != null)
+            legModel.Flight = flight;
         }
+
+     
 
         public virtual void AddFlight(Flight flight)
         {
-            flight = flight;
+            SetFlight(flight);
+            //service.UpdateLeg(legModel);
             Console.WriteLine($"flight {this.flight.Code} is in {this.GetType().Name}");
             NextTerminal(flight);
         }
@@ -66,65 +54,61 @@ namespace WebTerminalsServer.Logic
             if (NextLeg!.GetFlight() == null)
             {
                 Debug.Print($"{flight.Id} = {GetType().Name}");
+                SetFlight(null);
+                //service.UpdateLeg(legModel);
                 NextLeg.AddFlight(flight);
-                flight = null;
             }
             else
-            {                
+            {
                 NextTerminal(flight);
             }
         }
 
-        public IAirPortService GetService()
-        {
-            return _service;
-        }
-
-        public void SetService(IAirPortService service)
-        {
-            if(this._service == null)
-            _service = service;
-        }
-
-        //public void InitDb(DataContext dataContext)
+        //public IAirPortService GetService()
         //{
-        //    object obj = new object();
-        //    if(_dbContext == null)
-        //    {
-        //        var type = GetType().ToString();
-        //        Id = int.Parse(type.Substring(type.Length - 1));
-        //        _dbContext = dataContext;
-        //        _dbContext.legs.Add(this);
-        //    }
-        //    if(NextLeg != null)
-        //    {
-        //        if(NextLeg._dbContext == null)
-        //        NextLeg.InitDb(dataContext);
-        //    }
-        //    lock(obj)
-        //    {
-        //        _dbContext.SaveChangesAsync().Wait();
-        //    }
+        //    return _service;
         //}
+
+        //public void SetService(IAirPortService service)
+        //{
+        //    if (this._service == null)
+        //        _service = service;
+        //}
+
+        public void InitLeg(IAirPortRepository service)
+        {
+            this.service = service;
+            var type = this.GetType().ToString();
+            int number = int.Parse(type.Substring(type.Length - 1));
+            this.legModel = service.GetLegModel(number);
+            //if (this.legModel == null)
+            //    this.legModel = null;
+            //else
+            //    this.legModel = this.legModel;
+
+            if (NextLeg != null)
+            {
+                legModel.NextLeg = service.LegToEnum(NextLeg);
+            }
+        }
     }
 
-    public class Departures : Leg 
+    public class Departures : Leg
     {
+
+
+        public Departures(/*IAirPortRepository service*/)
+        {
+            flights = new PriorityQueue<Flight, bool>();
+            //SetService(service);
+            NextLeg = LegFactory<Leg6>.GetInstance();
+            NextLeg = LegFactory<Leg7>.GetInstance();
+            this.service = service;
+        }
+        private readonly PriorityQueue<Flight, bool>? flights;
+        private readonly IAirPortRepository service;
+
         
-        //public static Departures Init { get; } = new Departures();
-        public Departures(IAirPortService service)
-        {
-            SetService(service);
-            NextLeg = LegFactory<Leg6>.GetInstance(service);
-            //InitDb(dataContext);
-            NextLeg = LegFactory<Leg7>.GetInstance(service);
-        }
-        static readonly PriorityQueue<Flight, bool> flights = new PriorityQueue<Flight, bool>();
-        public void ChangeLeg()
-        {
-            if (this.NextLeg.GetType() == typeof(Leg6)) NextLeg = LegFactory<Leg7>.GetInstance(GetService());
-            else NextLeg = LegFactory<Leg6>.GetInstance(GetService());
-        }
         public override void NextTerminal(Flight flight)
         {
             NextLeg.AddFlight(flight);
@@ -133,13 +117,19 @@ namespace WebTerminalsServer.Logic
         public override void AddFlight(Flight flight)
         {
             flights.Enqueue(flight, flight.IsCritical);
-            ProgressFlight();                
+            ProgressFlight();
+        }
+
+        public void ChangeLeg()
+        {
+            if (NextLeg is Leg6) NextLeg = LegFactory<Leg7>.GetInstance();
+            else NextLeg = LegFactory<Leg6>.GetInstance();
         }
 
         public void ProgressFlight()
         {
             Thread.Sleep(TimeToWait * 100);
-            if(flights != null)
+            if (flights != null)
             {
                 if (NextLeg!.GetFlight() != null)
                 {
@@ -180,7 +170,7 @@ namespace WebTerminalsServer.Logic
                         NextTerminal(flights.Dequeue());
                     }
                 }
-            }   
+            }
         }
 
     }
@@ -188,33 +178,46 @@ namespace WebTerminalsServer.Logic
     public class Arrivals : Leg
     {
         //public static Arrivals Init { get; } = new Arrivals();
-        public Arrivals(IAirPortService service)
+
+        public Arrivals(/*IAirPortRepository service*/)
         {
-            SetService(service);
-            NextLeg = LegFactory<Leg1>.GetInstance(service);
+            flights = new PriorityQueue<Flight, bool>();
+            //SetService(service);
+            NextLeg = LegFactory<Leg1>.GetInstance();
             //InitDb(dataContext);
         }
 
-        static readonly PriorityQueue<Flight,bool> flights = new PriorityQueue<Flight,bool>();
+        private readonly PriorityQueue<Flight, bool> flights;
 
         public override void AddFlight(Flight flight)
         {
-            flights.Enqueue(flight,flight.IsCritical);
+            flights.Enqueue(flight, flight.IsCritical);
 
             if (NextLeg!.GetFlight() == null)
-                NextTerminal(flights.Dequeue());
+                if(flights.Count > 0)
+                    NextTerminal(flights.Dequeue());
         }
     }
 
     public abstract class MixedLeg : Leg
     {
+        public MixedLeg(IAirPortRepository service)
+        {
+            this.service = service;
+        }
+        public MixedLeg()
+        {
+            
+        }
+
         public override void AddFlight(Flight flight)
         {
             SetFlight(flight);
             Console.WriteLine($"flight  {GetFlight().Code} is in {this.GetType().Name}");
             if (flight.IsDeparture)
             {
-                NextLeg = LegFactory<Leg8>.GetInstance(GetService());
+                NextLeg = LegFactory<Leg8>.GetInstance();
+
             }
             else NextLeg = null;
             NextTerminal(flight);
@@ -222,14 +225,15 @@ namespace WebTerminalsServer.Logic
 
         public override void NextTerminal(Flight flight)
         {
-            Thread.Sleep(TimeToWait * 100 );
+            Thread.Sleep(TimeToWait * 100);
+
             if (NextLeg != null)
             {
                 if (NextLeg!.GetFlight() == null)
                 {
                     Debug.Print($"{flight.Id} = {GetType().Name}");
-                    NextLeg.AddFlight(flight);
                     SetFlight(null);
+                    NextLeg.AddFlight(flight);
                 }
                 else
                 {
@@ -240,6 +244,7 @@ namespace WebTerminalsServer.Logic
             {
                 Console.WriteLine($"flight {GetFlight().Code} has finished landing");
                 SetFlight(null);
+                //service.UpdateLeg(legModel);
             }
         }
 
@@ -248,12 +253,16 @@ namespace WebTerminalsServer.Logic
     public class Leg1 : Leg
     {
         public override int TimeToWait => 8;
-        //#region Singelton SIMPLE
-        //public static Leg1 Init { get; } = new Leg1();
-        //#endregion
-        public Leg1(IAirPortService service)
+
+        public Leg1()
         {
-            SetService(service);
+            Number = 1;
+            NextLeg = LegFactory<Leg2>.GetInstance();
+        }
+
+        public Leg1(IAirPortRepository service)
+        {
+            InitLeg(service);
             NextLeg = LegFactory<Leg2>.GetInstance(service);
         }
     }
@@ -261,22 +270,15 @@ namespace WebTerminalsServer.Logic
     public class Leg2 : Leg
     {
         public override int TimeToWait => 9;
-        //#region Singleton Less Code
-        //private static Leg2 init;
-        //public static Leg2 Init
-        //{
-        //    get
-        //    {
-        //        init ??= new Leg2();
-        //        return init;
-        //    }
-        //}
-        //#endregion
-        //public static Leg2 Init { get; } = new Leg2();
 
-        public Leg2(IAirPortService service)
+        public Leg2()
         {
-            SetService(service);
+            Number = 2;
+            NextLeg = LegFactory<Leg3>.GetInstance();
+        }
+        public Leg2(IAirPortRepository service)
+        {
+            InitLeg(service);
             NextLeg = LegFactory<Leg3>.GetInstance(service);
         }
     }
@@ -284,25 +286,37 @@ namespace WebTerminalsServer.Logic
     public class Leg3 : Leg
     {
         public override int TimeToWait => 12;
-        //public static Leg3 Init { get; } = new Leg3();
-
-        public Leg3(IAirPortService service)
+        public Leg3()
         {
-            SetService(service);
+            Number = 3;
+            NextLeg = LegFactory<Leg4>.GetInstance();
+        }
+
+        public Leg3(IAirPortRepository service)
+        {
+            InitLeg(service);
             NextLeg = LegFactory<Leg4>.GetInstance(service);
         }
     }
 
     public class Leg4 : Leg
     {
-        public override int TimeToWait => 15;
-        //threadsafe singletone
-        //private static readonly Lazy<Leg4> lazy = new Lazy<Leg4>(() => new Leg4());
-        //public static Leg4 Init = lazy.Value;
+        static bool isExists;
 
-        public Leg4(IAirPortService service)
+        public override int TimeToWait => 15;
+        public Leg4()
         {
-           SetService(service);
+            Number = 4;
+        }
+        public Leg4(IAirPortRepository service)
+        {
+            //NextLeg = LegFactory<Leg5>.GetInstance(service);
+            if (!isExists)
+            {
+                isExists = true;
+                InitLeg(service);
+            }
+            this.service = service;
         }
         public override void AddFlight(Flight flight)
         {
@@ -310,13 +324,13 @@ namespace WebTerminalsServer.Logic
             Console.WriteLine($"flight {GetFlight().Code} is in {this.GetType().Name}");
             if (flight.IsDeparture)
             {
-                NextLeg = LegFactory<Leg9>.GetInstance(GetService());
-                //if (NextLeg._dbContext == null) NextLeg._dbContext = _dbContext;
+                NextLeg = LegFactory<Leg9>.GetInstance(/*service*/);
+                //service.UpdateLeg(legModel);
             }
             else
             {
-                NextLeg = NextLeg = LegFactory<Leg5>.GetInstance(GetService()); ;
-                //if(NextLeg._dbContext == null) NextLeg._dbContext = _dbContext;
+                NextLeg = LegFactory<Leg5>.GetInstance(/*service*/); 
+                //service.UpdateLeg(legModel);
             }
             NextTerminal(flight);
         }
@@ -325,42 +339,47 @@ namespace WebTerminalsServer.Logic
     public class Leg5 : Leg
     {
         public override int TimeToWait => 8;
-        //#region Singelton SIMPLE
-        //public static Leg5 Init { get; } = new Leg5();
-        //#endregion
-        public Leg5(IAirPortService service)
+        public Leg5()
         {
-            SetService(service);
+            Number = 5;
+            NextLeg = LegFactory<Leg6>.GetInstance();
+        }
+        public Leg5(IAirPortRepository service)
+        {
+            InitLeg(service);
             NextLeg = LegFactory<Leg6>.GetInstance(service);
-            //if (NextLeg._dbContext == null) NextLeg._dbContext = _dbContext;
+            this.service = service;
         }
 
         public void ChangeLeg()
         {
-            if (this.NextLeg.GetType() == typeof(Leg6)) NextLeg = LegFactory<Leg7>.GetInstance(GetService());
-            else NextLeg = LegFactory<Leg6>.GetInstance(GetService());
+            if (this.NextLeg.GetType() == typeof(Leg6)) NextLeg = LegFactory<Leg7>.GetInstance(service);
+            else NextLeg = LegFactory<Leg6>.GetInstance(service);
         }
+
         public override void AddFlight(Flight flight)
         {
-            this.SetFlight(flight);
+            SetFlight(flight);
             Console.WriteLine($"flight  {GetFlight().Code} is in {this.GetType().Name}");
             NextTerminal(flight);
         }
 
         public override void NextTerminal(Flight flight)
         {
-            if(NextLeg.GetFlight() != null)
+            Thread.Sleep(TimeToWait * 100);
+
+            if (NextLeg.GetFlight() != null)
             {
                 ChangeLeg();
             }
 
-            Thread.Sleep(TimeToWait * 100 );
 
             if (NextLeg!.GetFlight() == null)
             {
                 Debug.Print($"{flight.Id} = {GetType().Name}");
-                NextLeg.AddFlight(flight);
                 SetFlight(null);
+                NextLeg.AddFlight(flight);
+                //service.UpdateLeg(legModel);
             }
             else
             {
@@ -371,72 +390,77 @@ namespace WebTerminalsServer.Logic
 
     public class Leg6 : MixedLeg
     {
-        public override int TimeToWait => 15;
-        //threadsafe singletone
-        //private static readonly Lazy<Leg6> lazy = new Lazy<Leg6>(() => new Leg6());
-        //public static Leg6 Init = lazy.Value;
-
-        public Leg6(IAirPortService service)
+        public Leg6()
         {
-            SetService(service);
+            Number = 6;
+            NextLeg = LegFactory<Leg8>.GetInstance();
+        }
+        public override int TimeToWait => 15;
+
+
+        public Leg6(IAirPortRepository service) : base(service)
+        {
+            InitLeg(service);
             NextLeg = LegFactory<Leg8>.GetInstance(service);
         }
     }
 
     public class Leg7 : MixedLeg
-
     {
-        public override int TimeToWait => 15;
-        //threadsafe singletone
-        //private static readonly Lazy<Leg7> lazy = new Lazy<Leg7>(() => new Leg7());
-        //public static Leg7 Init = lazy.Value;
-
-        public Leg7(IAirPortService service)
+        public Leg7()
         {
-            SetService(service);
+            Number = 7;
+            NextLeg = LegFactory<Leg8>.GetInstance();
+        }
+        public override int TimeToWait => 15;
+
+
+        public Leg7(IAirPortRepository service): base(service)
+        {
+            InitLeg(service);
             NextLeg = LegFactory<Leg8>.GetInstance(service);
         }
     }
 
     public class Leg8 : Leg
     {
-        public override int TimeToWait => 25;
-        //threadsafe singletone
-        //private static readonly Lazy<Leg8> lazy = new Lazy<Leg8>(() => new Leg8());
-        //public static Leg8 Init = lazy.Value;
-
-        public Leg8(IAirPortService service)
+        public Leg8()
         {
-            SetService(service);
-            NextLeg = LegFactory<Leg4>.GetInstance(service);
+            Number = 8;
+            NextLeg = LegFactory<Leg4>.GetInstance();
         }
-        public virtual void AddFlight(Flight flight)
+        public override int TimeToWait => 25;
+
+
+        public Leg8(IAirPortRepository service)
         {
-            SetFlight(flight);
-            Console.WriteLine($"flight {GetFlight().Code} is in {this.GetType().Name}");
-            if (NextLeg.GetType() != typeof(Leg4)) NextLeg = LegFactory<Leg4>.GetInstance(GetService());
-            NextTerminal(flight);
+            InitLeg(service);
+            NextLeg = LegFactory<Leg4>.GetInstance(service);
         }
 
     }
 
     public class Leg9 : Leg
     {
-        public override int TimeToWait => 20;
-        //#region Singleton simple
-        //public static Leg9 Init { get; } = new Leg9();
-        //#endregion
-        public Leg9(IAirPortService service)
+        public Leg9()
         {
-            SetService(service);
+            Number = 9;
+        }
+        public override int TimeToWait => 20;
+
+        public Leg9(IAirPortRepository service)
+        {
+            InitLeg(service);
         }
         public override void AddFlight(Flight flight)
         {
             SetFlight(flight);
+            //service.UpdateLeg(legModel);
             Console.WriteLine($"flight {GetFlight().Code}  is in  {this.GetType().Name} and ascending");
             Thread.Sleep(TimeToWait * 100);
             NextLeg = null;
             SetFlight(null);
+            //service.UpdateLeg(legModel);
         }
 
     }

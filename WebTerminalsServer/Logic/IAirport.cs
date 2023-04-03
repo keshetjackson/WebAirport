@@ -6,9 +6,9 @@ namespace WebTerminalsServer.Logic
     {
          void ProccessFlight(Flight flight);
         void AddLandingFLight(Flight flight);
-        void AddDepartureFight(Flight flight);
+        void AddDepartureFlight(Flight flight);
         Task<IEnumerable<Flight>> GetFlights();
         Task<IEnumerable<Logger>> GetLogs();
-        Task<IEnumerable<Leg>> GetLegs();
+        Task<IEnumerable<LegModel>> GetLegs();
     }
 }
