@@ -1,6 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using System.Runtime.InteropServices;
 using WebTerminalsServer.Dal;
+using WebTerminalsServer.Hubs;
 using WebTerminalsServer.Logic;
 using WebTerminalsServer.Models;
 
@@ -9,12 +11,13 @@ namespace WebTerminalsServer.Repositories
     public class AirportRepository : IAirPortRepository
     {
         private readonly IDbContextFactory<DataContext> _contextFactory;
-        private readonly DataContext _dataContext;
+        private readonly IHubContext<AirportHub> _hubContext;
 
-        static object obj;
-        public AirportRepository(IDbContextFactory<DataContext> contextFactory)
+
+        public AirportRepository(IDbContextFactory<DataContext> contextFactory, IHubContext<AirportHub> hubContext)
         {
             _contextFactory = contextFactory;
+            _hubContext = hubContext;
         }
 
 
@@ -66,6 +69,7 @@ namespace WebTerminalsServer.Repositories
                         await context.SaveChangesAsync();
                     }
                 }
+                await _hubContext.Clients.All.SendAsync("LegUpdated");
             }
             catch (Exception ex)
             {
@@ -115,6 +119,7 @@ namespace WebTerminalsServer.Repositories
                 await dataContext.Logs.AddAsync(log);
                 await dataContext.SaveChangesAsync();
             }
+            await _hubContext.Clients.All.SendAsync("LogAdded");
         }
 
         public IEnumerable<LegModel> GetLegModels()

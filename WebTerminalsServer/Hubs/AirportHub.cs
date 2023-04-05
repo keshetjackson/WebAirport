@@ -5,19 +5,14 @@ namespace WebTerminalsServer.Hubs
 {
     public class AirportHub : Hub
     {
-        public async Task SendLegs(IEnumerable<LegModel> legs)
+        public async Task NotifyLegUpdated()
         {
-            await Clients.All.SendAsync("GetLegs", legs);
+            await Clients.All.SendAsync("LegUpdated");
         }
 
-        public async Task SendFlights(IEnumerable<Flight> flights)
+        public async Task NotifyLogAdded(Logger log)
         {
-            await Clients.All.SendAsync("GetFlights", flights);
-        }
-
-        public async Task SendLogs(IEnumerable<Logger> logs)
-        {
-            await Clients.All.SendAsync("GetLogs", logs);
+            await Clients.All.SendAsync("LogAdded");
         }
     }
 }
