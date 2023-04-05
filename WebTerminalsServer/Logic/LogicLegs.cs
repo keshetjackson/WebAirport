@@ -25,17 +25,20 @@ namespace WebTerminalsServer.Logic
         {
             return Flight;
         }
-        public void SetFlight(Flight flight)
+        public void SetFlight(Flight? flight)
         {
+            var log = new Logger
+            {
+                FlightId = flight?.Id,
+                LegId = legModel?.Id,
+                IsEntering = legModel.Flight == null ? true : false
+            };
             Flight = flight;
-            //if (legModel == null)
-            //{
-            //    legModel = LegFactory<Leg1>.GetInstance(service).legModel;
-            //}
             if(legModel != null)
             {
                 legModel.Flight = flight;
                 _repository.UpdateLeg(legModel);
+                _repository.AddLog(log);
             }
             
         }

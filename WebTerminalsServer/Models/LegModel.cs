@@ -4,6 +4,7 @@
     {
         public int Id { get; set; }
         public int Number { get; set; }
+        public int? FlightId { get; set; }
         public virtual Flight? Flight { get; set; }
         public LegType NextLeg { get; set; }
     }

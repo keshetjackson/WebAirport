@@ -15,9 +15,6 @@ namespace WebTerminalsServer.Repositories
         public AirportRepository(IDbContextFactory<DataContext> contextFactory)
         {
             _contextFactory = contextFactory;
-            //if (obj == null)
-            //    obj = new object();
-            //_dataContext = dataContext;
         }
 
 
@@ -47,21 +44,27 @@ namespace WebTerminalsServer.Repositories
             }
         }
 
-        public async void UpdateLeg(LegModel leg)
+        public async void UpdateLeg(LegModel? leg)
         {
             try
             {
-                //lock(obj)
-                //{
-                //    _dataContext.Legs.Update(leg);
-                //    _dataContext.SaveChangesAsync();
-                //}
-                //_dataContext.Legs.Update(leg);
-                //await _dataContext.SaveChangesAsync();
-                using (var context = _contextFactory.CreateDbContext())
+                if (leg.Flight == null)
                 {
-                    context.Legs.Update(leg);
-                    await context.SaveChangesAsync();
+                    using (var context = _contextFactory.CreateDbContext())
+                    {
+                        var model  = await context.Legs.FirstAsync(l => l.Number == leg.Number);
+                        model.Flight = null;
+                        model.FlightId = null;
+                        await context.SaveChangesAsync();
+                    }
+                }
+                else
+                {
+                    using (var context = _contextFactory.CreateDbContext())
+                    {
+                        context.Legs.Update(leg);
+                        await context.SaveChangesAsync();
+                    }
                 }
             }
             catch (Exception ex)
@@ -87,26 +90,11 @@ namespace WebTerminalsServer.Repositories
             }
         }
 
-        public Task SaveAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task AddLegAsync(LegModel leg)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task RemoveLeg(LegModel leg)
-        {
-            throw new NotImplementedException();
-        }
-
+  
 
 
         public async Task AddFlightAsync(Flight flight)
         {
-             //UpdateLegs(new List<LegModel>());
        
             using (var dataContext = _contextFactory.CreateDbContext())
             {
@@ -120,14 +108,13 @@ namespace WebTerminalsServer.Repositories
             throw new NotImplementedException();
         }
 
-        public Task UpdateFlight(Flight flight)
+        public async void AddLog(Logger log)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task AddLogAsync(Logger log)
-        {
-            throw new NotImplementedException();
+            using(var dataContext = _contextFactory.CreateDbContext())
+            {
+                await dataContext.Logs.AddAsync(log);
+                await dataContext.SaveChangesAsync();
+            }
         }
 
         public IEnumerable<LegModel> GetLegModels()
@@ -143,11 +130,6 @@ namespace WebTerminalsServer.Repositories
         {
             try
             {
-                //lock (obj)
-                //{
-                //    _dataContext.Legs.UpdateRange(legModels);
-                //    _dataContext.SaveChangesAsync();
-                //}
                 using (var context = _contextFactory.CreateDbContext())
                 {
                     context.Legs.UpdateRange(legModels);

@@ -140,17 +140,17 @@ namespace WebTerminalsServer.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("EventTime")
+                        .HasColumnType("datetime2");
+
                     b.Property<int?>("FlightId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("In")
-                        .HasColumnType("datetime2");
+                    b.Property<bool>("IsEntering")
+                        .HasColumnType("bit");
 
                     b.Property<int?>("LegId")
                         .HasColumnType("int");
-
-                    b.Property<DateTime>("Out")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 

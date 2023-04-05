@@ -17,8 +17,6 @@ namespace WebTerminalsServer.Services
         private readonly List<Leg> Legs;
         private List<LegModel> _models;
         private System.Timers.Timer _timer;
-        //private readonly PriorityQueue<Flight, bool> departures;
-        //private readonly PriorityQueue<Flight, bool> arrivals;
 
         public AirportService(IAirPortRepository repo, IHubContext<AirportHub> hubContext)
         {
@@ -27,48 +25,6 @@ namespace WebTerminalsServer.Services
             departures = new Departures(repo);
         }
 
-        //public AirportService(IAirPortRepository repo, IHubContext<AirportHub> hubContext)
-        //{
-        //    _repository = repo;
-        //    _hubContext = hubContext;
-        //    Legs = new List<Leg>()
-        //    {
-        //        LegFactory<Leg1>.GetInstance(),
-        //        LegFactory<Leg2>.GetInstance(),
-        //        LegFactory<Leg3>.GetInstance(),
-        //        LegFactory<Leg4>.GetInstance(),
-        //        LegFactory<Leg5>.GetInstance(),
-        //        LegFactory<Leg6>.GetInstance(),
-        //        LegFactory<Leg7>.GetInstance(),
-        //        LegFactory<Leg8>.GetInstance(),
-        //        LegFactory<Leg9>.GetInstance(),
-        //    };
-        //    _models = new List<LegModel>();
-        //    arrivals = new Arrivals();
-        //    departures = new Departures();
-        //    InitLegModels();
-        //    _timer = new System.Timers.Timer();
-        //    InitClientUpdates();
-        //}
-
-        private void InitClientUpdates()
-        {
-            _timer.Interval = 1000; // 0.5 sec
-            _timer.Elapsed += UpdateClient;
-            _timer.Start();
-        }
-
-        private async void UpdateClient(object sender, ElapsedEventArgs e)
-        {
-            _repository.UpdateLegs(_models);
-            await _hubContext.Clients.All.SendAsync("GetLegs", _models);
-        }
-
-        private void InitLegModels()
-        {
-            _models = _repository.GetLegModels().ToList();
-            Legs.ForEach(l => l.legModel = _models.First(lm => lm.Number == l.Number));
-        }
 
         public async void ProccessFlight(Flight flight)
         {

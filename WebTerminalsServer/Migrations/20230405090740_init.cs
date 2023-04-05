@@ -57,8 +57,8 @@ namespace WebTerminalsServer.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     FlightId = table.Column<int>(type: "int", nullable: true),
                     LegId = table.Column<int>(type: "int", nullable: true),
-                    In = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Out = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    EventTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsEntering = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
