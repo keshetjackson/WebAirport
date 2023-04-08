@@ -1,13 +1,13 @@
 // src/App.js
 import React from 'react';
 import './App.css';
-import FlightData from './Components/FlightData';
+import LegsData from './Components/LegsData';
 
 function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <FlightData />
+        <LegsData />
       </header>
     </div>
   );

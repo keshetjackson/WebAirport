@@ -9,20 +9,22 @@ namespace WebTerminalsServer.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class FlightsController : ControllerBase
+    public class AirportController : ControllerBase
     {
         private readonly IAirportService _airportService;
         private readonly IAirPortRepository _airportRepository;
 
 
-        public FlightsController(IAirportService airport, IAirPortRepository airportRepository)
+        public AirportController(IAirportService airport, IAirPortRepository airportRepository)
         {
             this._airportService = airport;
             this._airportRepository = airportRepository;
         }
 
-        [HttpGet]
-        public async Task<List<LegModel>> Get() => (List<LegModel>)await _airportRepository.AsyncGetLegModels();
+        [HttpGet("Legs")]
+        public async Task<List<LegModel>> GetLegs() => (List<LegModel>)await _airportRepository.GetLegModels();
+        [HttpGet("Logs")]
+        public async Task<List<Logger>> GetLogs() => (List<Logger>)await _airportRepository.GetLogs();
 
         [HttpPost]
         public async Task AddFlight(Flight flight)

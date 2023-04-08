@@ -24,7 +24,18 @@ builder.Services.AddDbContextFactory<DataContext>(options =>
 //builder.Services.AddDbContext<DataContext>(options => 
 //    options.UseSqlServer(builder.Configuration.GetConnectionString("DataBase")), ServiceLifetime.Scoped/*, ServiceLifetime.Singleton*/);
 builder.Services.AddSignalR();
-//builder.Services.AddCors();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: "AllowOrigin",
+                      builder =>
+                      {
+                          builder.WithOrigins("http://localhost:3000")
+                                 .AllowAnyHeader()
+                                 .AllowAnyMethod()
+                                 .AllowCredentials();
+                      });
+});
+
 
 builder.Services.AddScoped<IAirPortRepository , AirportRepository>();
 //builder.Services.AddSingleton<IAirPortRepository , AirportRepository>();
@@ -75,6 +86,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+app.UseCors("AllowOrigin");
 app.MapHub<AirportHub>("/airportHub");
 
 app.Run();

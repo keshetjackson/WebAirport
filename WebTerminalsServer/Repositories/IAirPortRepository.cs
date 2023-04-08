@@ -12,8 +12,8 @@ namespace WebTerminalsServer.Repositories
         Task RemoveFlight(Flight flight);
         void AddLog(Logger log);
         LegModel GetLegModel(int legNumber);
-        IEnumerable<LegModel> GetLegModels();
-        Task<IEnumerable<LegModel>> AsyncGetLegModels();
+        Task<IEnumerable<LegModel>> GetLegModels();
+        Task<IEnumerable<Logger>> GetLogs();
         void UpdateLegs(IEnumerable<LegModel> legModels);
         Task<Flight> GetFlightByCodeAsync(string code);
     }

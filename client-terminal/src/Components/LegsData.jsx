@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+// FlightData.js
 
-const FlightData = () => {
+import React, { useState, useEffect } from 'react';
+import api from '../Services/api';
+import signalRService from '../Services/signalRService';
+
+const LegsData = () => {
   const [data, setData] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('https://localhost:7275/api/Flights');
+        const response = await api.get('api/Airport/Legs');
         setData(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -17,27 +20,24 @@ const FlightData = () => {
     // Fetch data initially
     fetchData();
 
-    // Set up a timer to fetch data every 500 milliseconds
-    const timer = setInterval(() => {
-      fetchData();
-    }, 500);
+    signalRService.on("LegUpdated", fetchData);
 
-    // Clean up the timer when the component is unmounted
+    // Clean up the event listener when the component is unmounted
     return () => {
-      clearInterval(timer);
+      signalRService.off("LegUpdated", fetchData);
     };
   }, []);
 
   return (
     <div>
-      <h1>Flight Data</h1>
+      <h1>Legs Data</h1>
       {data ? (
         <pre>{JSON.stringify(data, null, 2)}</pre>
       ) : (
-        <p>Loading data...</p>
+        <p>Loading real time data...</p>
       )}
     </div>
   );
 };
 
-export default FlightData;
+export default LegsData;

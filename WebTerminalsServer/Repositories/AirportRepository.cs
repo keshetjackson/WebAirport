@@ -122,14 +122,6 @@ namespace WebTerminalsServer.Repositories
             await _hubContext.Clients.All.SendAsync("LogAdded");
         }
 
-        public IEnumerable<LegModel> GetLegModels()
-        {
-            using (var context = _contextFactory.CreateDbContext())
-            {
-                return context.Legs!.ToList();
-            }
-
-        }
 
         public async void UpdateLegs(IEnumerable<LegModel> legModels)
         {
@@ -149,7 +141,7 @@ namespace WebTerminalsServer.Repositories
 
         }
 
-        public async Task<IEnumerable<LegModel>> AsyncGetLegModels()
+        public async Task<IEnumerable<LegModel>> GetLegModels()
         {
             using (var context = _contextFactory.CreateDbContext())
             {
@@ -157,6 +149,16 @@ namespace WebTerminalsServer.Repositories
             }
 
         }
+
+        public async Task<IEnumerable<Logger>> GetLogs()
+        {
+            using (var context = _contextFactory.CreateDbContext())
+            {
+                return await context.Logs.ToListAsync();
+            }
+
+        }
+
 
 
         public Task<Flight> GetFlightByCodeAsync(string code)

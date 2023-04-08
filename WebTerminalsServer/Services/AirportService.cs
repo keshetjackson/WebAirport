@@ -69,7 +69,7 @@ namespace WebTerminalsServer.Services
 
         public async Task<IEnumerable<LegModel>> GetLegs()
         {
-            return await _repository.AsyncGetLegModels();
+            return await _repository.GetLegModels();
         }
     }
 }

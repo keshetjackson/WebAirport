@@ -27,15 +27,17 @@ namespace WebTerminalsServer.Logic
         }
         public void SetFlight(Flight? flight)
         {
-            var log = new Logger
-            {
-                FlightId = flight?.Id,
-                LegId = legModel?.Id,
-                IsEntering = legModel.Flight == null ? true : false
-            };
+            
             Flight = flight;
             if(legModel != null)
             {
+                var log = new Logger
+                {
+                    FlightId = flight?.Id,
+                    LegId = legModel?.Id,
+                    IsEntering = legModel.Flight == null ? true : false
+                };
+
                 legModel.Flight = flight;
                 _repository.UpdateLeg(legModel);
                 _repository.AddLog(log);
