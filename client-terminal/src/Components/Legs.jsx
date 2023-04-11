@@ -1,10 +1,9 @@
-// FlightData.js
-
 import React, { useState, useEffect } from 'react';
 import api from '../Services/api';
 import signalRService from '../Services/signalRService';
+import LegCard from './LegCard/LegCard';
 
-const LegsData = () => {
+const Legs = () => {
   const [data, setData] = useState(null);
 
   useEffect(() => {
@@ -17,12 +16,10 @@ const LegsData = () => {
       }
     };
 
-    // Fetch data initially
     fetchData();
 
     signalRService.on("LegUpdated", fetchData);
 
-    // Clean up the event listener when the component is unmounted
     return () => {
       signalRService.off("LegUpdated", fetchData);
     };
@@ -30,14 +27,14 @@ const LegsData = () => {
 
   return (
     <div>
-      <h1>Legs Data</h1>
+      <h1>Legs</h1>
       {data ? (
-        <pre>{JSON.stringify(data, null, 2)}</pre>
+        data.map((leg) => <LegCard key={leg.id} leg = {leg}/>)
       ) : (
-        <p>Loading real time data...</p>
+        <p>loading real time data...</p>
       )}
     </div>
   );
 };
 
-export default LegsData;
+export default Legs;

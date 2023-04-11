@@ -1,0 +1,25 @@
+.leg-card {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 1rem;
+    margin: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  
+  .leg-card.empty {
+    background-color: green;
+  }
+
+  .leg-card.taken {
+    background-color: red;
+  }
+  
+  .leg-card__content {
+    /* Add your content styles here */
+  }
+  
+  .leg-card__details {
+    /* Add your expanded details styles here */
+  }
+  
