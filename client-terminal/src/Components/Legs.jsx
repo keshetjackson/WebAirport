@@ -28,11 +28,13 @@ const Legs = () => {
   return (
     <div>
       <h1>Legs</h1>
+      <div className='leg-card-container'>
       {data ? (
         data.map((leg) => <LegCard key={leg.id} leg = {leg}/>)
       ) : (
         <p>loading real time data...</p>
       )}
+      </div>
     </div>
   );
 };

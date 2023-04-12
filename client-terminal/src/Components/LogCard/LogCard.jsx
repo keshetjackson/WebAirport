@@ -10,7 +10,7 @@ const LogCard = ({ log, formatDate }) => {
 
   return (
     <div className={`log-card ${expanded ? 'expanded' : ''}`} onClick={toggleExpanded}>
-      <div>{log.flightId ? `Flight ${log.flightId} has entered leg number ${log.legId}` : 'The flight has left the leg'}</div>
+      <div>{log.flightId ? `Flight ${log.flightId} has entered leg number ${log.legId}` : `flight has left leg ${log.legId}`}</div>
       {expanded && (
         <>
           <div>Log ID: {log.id}</div>
