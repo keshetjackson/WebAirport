@@ -32,7 +32,7 @@ WebAirport is a real-time flight control system simulator that manages the activ
 - Entities: The minimal entities are Flight and Leg.
 - Server: The central part of the system that includes the control tower's "brain" and the data structure of all active flights.
 - GUI: Basic GUI that displays updated lists reflecting the status of all "legs" and their active flights.
-- Log: Records all activity in a text file, including flight data (can also write to a database).
+- Log: Records all activity in the database.
 
 ## Entities
 - Flight:
