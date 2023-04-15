@@ -9,7 +9,9 @@ things like:
 - pass the value to the next node.
 - save to database.
 - have a unique logic 
+
 this logic was designed using several design patterns: 
+
 - Singletone : each node is created only once thru the application life time and each node is threadsafe.
 - States : each node is checking the state of the next node to decide if it can pass the value or wait.
 - factory pattern : nodes (legs) are creating thru a generic singletone thread safe leg factory to enable global access to the legs
