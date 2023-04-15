@@ -18,7 +18,7 @@ namespace ConsoleSimulator.Services
         public async void GenerateFlight()
         {
             var flight = new FlightDto { Company = GenerateCompany(), IsDeparture = GenerateDeparture(), IsCritical = GenerateIsCritical()};
-            var response = await client.PostAsJsonAsync("api/Flights", flight);
+            var response = await client.PostAsJsonAsync("api/Airport", flight);
             if (response.IsSuccessStatusCode)
             {
                 StringBuilder builder = new StringBuilder();

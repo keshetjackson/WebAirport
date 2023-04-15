@@ -1,7 +1,5 @@
 .home-container {
   display: flex;
-  flex-direction: row;
-  justify-content: center;
   align-items: flex-start;
   height: 100vh; /* Set the height of the container to the full height of the viewport */
   overflow: hidden; /* Enable scrolling when content overflows the container */
@@ -9,12 +7,15 @@
 
 .logs-container,
 .legs-container {
-    flex: 0 0 48%; /* Set the width of the containers to 45% of the parent container */
+    flex: 0 0 48%; 
     padding: 16px;
+    padding: 1rem;
     overflow-y: auto; /* Enable vertical scrolling when content overflows the container */
     max-height: 100vh; /* Set the max-height of the containers to the full height of the viewport */
+   
 }
 
 .logs-container {
-  border-right: 1px solid #ccc; /* Add border line between Logs and Legs */
+  border-right: 1px solid #ccc;
+  flex-direction: row-reverse;
 }

@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using WebTerminalsServer.Dal;
 using WebTerminalsServer.Hubs;
 using WebTerminalsServer.Logic;
+using WebTerminalsServer.Logic.Legs;
 using WebTerminalsServer.Models;
 
 namespace WebTerminalsServer.Repositories
@@ -48,9 +49,7 @@ namespace WebTerminalsServer.Repositories
         }
 
         public async void UpdateLeg(LegModel? leg)
-        {
-            try
-            {
+        {           
                 if (leg.Flight == null)
                 {
                     using (var context = _contextFactory.CreateDbContext())
@@ -69,29 +68,16 @@ namespace WebTerminalsServer.Repositories
                         await context.SaveChangesAsync();
                     }
                 }
-                await _hubContext.Clients.All.SendAsync("LegUpdated");
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+                await _hubContext.Clients.All.SendAsync("LegUpdated");          
 
         }
 
         public LegModel GetLegModel(int legNumber)
-        {
-            try
-            {
+        {           
                 using(var datacontext = _contextFactory.CreateDbContext())
                 {
                     return datacontext.Legs.Where(l => l.Number == legNumber).FirstOrDefault();
-                }
-            }
-            catch (Exception ex)
-            {
-
-                throw;
-            }
+                }         
         }
 
   
@@ -124,21 +110,12 @@ namespace WebTerminalsServer.Repositories
 
 
         public async void UpdateLegs(IEnumerable<LegModel> legModels)
-        {
-            try
-            {
+        {           
                 using (var context = _contextFactory.CreateDbContext())
                 {
                     context.Legs.UpdateRange(legModels);
                     await context.SaveChangesAsync(); //exception here
-                }
-            }
-            catch (Exception ex)
-              {
-
-                throw;
-            }
-
+                }         
         }
 
         public async Task<IEnumerable<LegModel>> GetLegModels()
@@ -159,14 +136,16 @@ namespace WebTerminalsServer.Repositories
 
         }
 
+        public async Task<IEnumerable<Logger>> GetLog(int id)
+        {
+            using (var context = _contextFactory.CreateDbContext())
+            {
+                return await context.Logs.Where(l =>  l.Id == id).ToListAsync();
+            }
+        }
 
 
         public Task<Flight> GetFlightByCodeAsync(string code)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task AddOrUpdateLegWithFlightAsync(LegModel leg)
         {
             throw new NotImplementedException();
         }

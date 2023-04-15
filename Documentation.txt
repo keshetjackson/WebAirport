@@ -1,0 +1,29 @@
+Project Documentation: WebAirport
+WebAirport is a real-time flight control system simulator that manages the activity of an airport, including remote control of aircraft. The system's purpose is to simulate the management of incoming flights, their landing, transfer to parking, and other related activities.
+
+Project Structure
+The project is organized into the following main components:
+
+Simulator: The simulator component is responsible for generating incoming flights and simulating their approach to the airport. It allows users to plug in different simulation scenarios and is designed to be extensible.
+
+Logic: This component handles the core functionality of the airport, such as managing the array of flights in the air and on the ground, timing mechanisms, and decision-making for routing aircraft through the airport.
+
+Entities: The entities component contains the basic building blocks of the system, such as the Flight and Leg classes. These classes are used to model the state of the airport and the flights it manages.
+
+Server: The server component is the central hub of the system, containing the control tower's "brain" and the data structure of all active flights. It is responsible for processing user input, executing commands, and managing the overall state of the airport.
+
+Client Terminal: The Client Terminal is a React-based user interface that provides a visual representation of the airport's current state. It displays updated lists reflecting the status of all "legs" and their active flights, and allows users to interact with the system to manage flights and control airport activities.
+
+Log: The log component records all system activity, including flight data, events, and user actions, in a text file or database. This information can be used for auditing, debugging, and analysis purposes.
+
+Technological Layers
+Backend: The backend is built using ASP.NET Core, a powerful and flexible web application framework. It provides a scalable and efficient server-side architecture for the WebAirport system.
+
+Frontend: The frontend is developed using React, a popular JavaScript library for building user interfaces. React allows for efficient rendering of UI components and enables the creation of a responsive and intuitive user experience.
+
+Database: The data is stored using a combination of SQL and MongoDB databases. SQL is used for structured data storage and retrieval, while MongoDB is utilized for more flexible and dynamic data management.
+
+Objects
+Flight: The Flight class represents an individual flight, with properties such as flight number, passengers count, critical status, brand, current leg, and landing/departure status. It models the state of a flight as it progresses through the airport.
+
+Leg: The Leg class represents a segment of the flight route within the airport, with properties such as leg number, capacity, landing/departure/both status, and crossing time (in seconds). Legs are used to model the various stages of a flight's journey through the airport and to manage the flow of aircraft traffic.

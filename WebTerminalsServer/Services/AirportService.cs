@@ -13,12 +13,8 @@ namespace WebTerminalsServer.Services
         Departures departures { get; set; }
 
         private readonly IAirPortRepository _repository;
-        private readonly IHubContext<AirportHub> _hubContext;
-        private readonly List<Leg> Legs;
-        private List<LegModel> _models;
-        private System.Timers.Timer _timer;
 
-        public AirportService(IAirPortRepository repo, IHubContext<AirportHub> hubContext)
+        public AirportService(IAirPortRepository repo)
         {
             _repository = repo;
             arrivals = new Arrivals(repo);
@@ -27,18 +23,11 @@ namespace WebTerminalsServer.Services
 
 
         public async void ProccessFlight(Flight flight)
-        {
-            try
-            {
+        {         
                 await _repository.AddFlightAsync(flight);
 
                 if (flight.IsDeparture) AddDepartureFlight(flight);
-                else AddLandingFLight(flight);
-            }
-            catch (Exception ex)
-            {
-
-            }
+                else AddLandingFLight(flight);          
         }
 
         public void AddLandingFLight(Flight flight)
@@ -57,19 +46,5 @@ namespace WebTerminalsServer.Services
             departures.AddFlight(flight);
         }
 
-        public Task<IEnumerable<Flight>> GetFlights()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<Logger>> GetLogs()
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<IEnumerable<LegModel>> GetLegs()
-        {
-            return await _repository.GetLegModels();
-        }
     }
 }

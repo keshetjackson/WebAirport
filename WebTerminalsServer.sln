@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33502.453
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebTerminalsServer", "WebTerminalsServer\WebTerminalsServer.csproj", "{31A841BE-AF67-425B-820E-68E4BD58F0E1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebTerminalsServer", "WebTerminalsServer\WebTerminalsServer.csproj", "{31A841BE-AF67-425B-820E-68E4BD58F0E1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleSimulator", "ConsoleSimulator\ConsoleSimulator.csproj", "{6EC0E49A-B7C7-4A07-BBF5-891F78B1064F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleSimulator", "ConsoleSimulator\ConsoleSimulator.csproj", "{6EC0E49A-B7C7-4A07-BBF5-891F78B1064F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebAirport.Server.Tests", "WebAirport.Server.Tests\WebAirport.Server.Tests.csproj", "{032ED889-B92C-422C-9D51-0F7E8DE9B44D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{6EC0E49A-B7C7-4A07-BBF5-891F78B1064F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6EC0E49A-B7C7-4A07-BBF5-891F78B1064F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6EC0E49A-B7C7-4A07-BBF5-891F78B1064F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{032ED889-B92C-422C-9D51-0F7E8DE9B44D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{032ED889-B92C-422C-9D51-0F7E8DE9B44D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{032ED889-B92C-422C-9D51-0F7E8DE9B44D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{032ED889-B92C-422C-9D51-0F7E8DE9B44D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

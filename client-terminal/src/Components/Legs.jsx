@@ -25,17 +25,24 @@ const Legs = () => {
     };
   }, []);
 
+  const expandAll =() => {
+    
+  }
+
   return (
     <div>
       <h1>Legs</h1>
-      <div className='leg-card-container'>
+      
       {data ? (
-        data.map((leg) => <LegCard key={leg.id} leg = {leg}/>)
+        <div className='leg-card-container'>
+       { data.map((leg) => ( <LegCard key={leg.id} leg = {leg}/>
+       ))}
+        </div>
       ) : (
         <p>loading real time data...</p>
       )}
       </div>
-    </div>
+    
   );
 };
 

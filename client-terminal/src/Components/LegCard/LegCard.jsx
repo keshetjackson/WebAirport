@@ -11,13 +11,13 @@ const LegCard = ({ leg }) => {
     return (
       <div className={`leg-card ${leg.flightId ? 'taken' : 'empty'}`} onClick={handleExpandClick}>
         <div className="leg-card__content">
-          <h2>Leg number :{leg.number}</h2>        
+          <h4>Leg number :{leg.number}</h4>        
         </div>
         {expanded && (
           <div className="leg-card__details">
             {/* Add all the details you want to display when the card is expanded */}
-            <h3>Flight ID: {leg.flightId || 'empty'}</h3> 
-            <h3>Next Leg: {leg.nextLeg || 'empty'}</h3> 
+            <h5>Flight ID: {leg.flightId || 'empty'}</h5> 
+            <h5>Next Leg: {leg.nextLeg || 'empty'}</h5> 
           </div>
         )}
       </div>

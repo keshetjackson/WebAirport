@@ -27,9 +27,12 @@ namespace WebTerminalsServer.Controllers
         public async Task<List<Logger>> GetLogs() => (List<Logger>)await _airportRepository.GetLogs();
 
         [HttpPost]
-        public async Task AddFlight(Flight flight)
-        {
-             _airportService.ProccessFlight(flight);
-        }
+        public async Task AddFlight(Flight flight) => _airportService.ProccessFlight(flight);
+
+        [HttpGet("Leg")]
+        public async Task<IEnumerable<Logger>> GetLog(int id) => await _airportRepository.GetLog(id);
+
+        
+
     }
 }

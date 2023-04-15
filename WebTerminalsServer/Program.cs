@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using WebTerminalsServer.Dal;
+using WebTerminalsServer.ExceptionHandler;
 using WebTerminalsServer.Hubs;
 using WebTerminalsServer.Repositories;
 using WebTerminalsServer.Services;
@@ -79,7 +80,7 @@ using (var scope = app.Services.CreateScope())
     dbContext?.Database.EnsureDeleted();
     dbContext?.Database.EnsureCreated();
 }
-
+app.UseGlobalExceptionHandler();
 app.UseHttpsRedirection();
 
 

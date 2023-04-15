@@ -16,5 +16,6 @@ namespace WebTerminalsServer.Repositories
         Task<IEnumerable<Logger>> GetLogs();
         void UpdateLegs(IEnumerable<LegModel> legModels);
         Task<Flight> GetFlightByCodeAsync(string code);
+        Task<IEnumerable<Logger>> GetLog(int id);
     }
 }
