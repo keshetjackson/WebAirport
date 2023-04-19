@@ -1,39 +1,44 @@
+
 # WebAirport
 Flight Control & Remote Flight Manager
 
+![image](https://user-images.githubusercontent.com/98225513/233122787-3ef21f67-e831-4b8d-aeec-0902e72a3e2b.png)
+
+
 WebAirport is a real-time flight control system simulator that manages the activity of an airport, including remote control of aircraft.
 
-## Table of Contents
-- [Features](#features)
-- [System Architecture](#system-architecture)
-- [Entities](#entities)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
-
 ## Features
-- Simulator that generates incoming flights approaching point 1 (See diagram).
-- The system manages flights on the "route":
-  - Possible landing route: From point 1 to points 2 and 3 in order, then to point 4 for the physical landing.
-  - Transfer to parking: Point 5 (transfer) and clearing at points 6 or 7. If a position is occupied, the aircraft will wait at point 5.
-- System structure: Simulator, Logic, Entities, Server, GUI, and Log.
-- Asynchronous thinking for handling flights, aircraft, and events in parallel.
 
-## System Architecture
-![image](https://user-images.githubusercontent.com/98225513/231798846-9801e204-11d4-4707-b8cd-21a0e1627fc6.png)
+The project Features 3 parts : 
+- Simulator - generate random flights and send it to the server using http post request.
+- Server - 
+  - logic - so the logic of the application is basiclly a data structure with its own logic for specific nodes. this data structure is automatic, meaning whenever you pass a value (flight) to the first node (leg), each node will handle all the neccessery things like:
+     - checking if the next node is free.
+     - wait a certain amount of time.
+     - pass the value to the next node.
+     - save to database.
+     - have a unique logic
+     - ![image](https://user-images.githubusercontent.com/98225513/233123075-832f220a-4e44-4bd6-a112-33b3172d5320.png)
 
- 
+     
+   - this logic was designed using several design patterns:
+     - Singletone - each node is created only once thru the          application life time and each node is threadsafe.
+     -  States - each node is checking the state of the next node to      decide if it can pass the value or wait.
+     -  factory pattern : nodes (legs) are creating thru a generic      singletone thread safe leg factory to enable global access to the      legs and keeping them unique and thread safe.
+     -  Repository - the repository of the application is using new      instance of the datacontext everytime with the datacontext factory      in order to keep the context thread safe and clean.
+     - Observer - is used to pass real time updates from the server to the client whenever there is a change in a leg/ log is added.
+     - Dependency Injection - Dependency Injection is used throught the application to inject to following Dependencies : 
+      - Repository
+      - Service 
+      - Data Context
+    
 
-- Simulator: Handles the simulation of aircrafts, can work in a plug & play format.
-- Logic: The functionality of the airport, including the timing mechanism and the array of flights in the air and on the ground.
-![image](https://user-images.githubusercontent.com/98225513/231797625-279c5eef-4e4b-42a6-b0e6-bba9e3476ca7.png)
+   - Service - the service of the application is rather small, it is being used only to pass a flight from the constructor to the data structure, it checks if the fligth is arrival or departure and pass it on to the appropiate node, from there the data structure is completly automatic and self managed.
 
-- Entities: The minimal entities are Flight and Leg.
-- Server: The central part of the system that includes the control tower's "brain" and the data structure of all active flights.
-- GUI: Basic GUI that displays updated lists reflecting the status of all "legs" and their active flights.
-- Log: Records all activity in the database.
+   - Exception handling - i used a global extension handling throught a middleware.
 
+   - Asynchronous thinking for handling flights and events in parallel.
+- Gui - implemented using react, shows real time legs state and info on one side of the screen and on the other theres a list of logs for any activity inside the airport.
 ## Entities
 - Flight:
 ```
@@ -58,22 +63,50 @@ public class LegModel
         public LegType NextLeg { get; set; }
     }
 ```
+- Logger
+```
+public class Logger
+    {
+        public int Id { get; set; }
+        public int? FlightId { get; set; } 
+        public virtual Flight? Flight { get; set; }
+        public int? LegId { get; set; } 
+        public virtual LegModel? Leg { get; set; }
+        public DateTime EventTime { get; set; } = DateTime.Now;
+        public bool IsEntering { get; set; }
 
-## Installation
-1. Clone this repository: `git clone https://github.com/keshetjackson/WebAirport.git`
-2. Navigate to the project directory: `cd WebAirport`
-3. Install the required packages: `dotnet restore`
+    }
+```
 
-## Usage
-1. Run the application: `dotnet run`
-2. Interact with the GUI to manage the flights and control the airport activities.
 
-## Contributing
-1. Fork the repository.
-2. Create a new branch: `git checkout -b new-feature`
-3. Commit your changes: `git commit -m "Add a new feature"`
-4. Push to the branch: `git push origin new-feature`
-5. Submit a pull request.
+##  Tests
 
-## License
-This project is licensed under the MIT License.
+I added some basic unit test for the server. 
+
+To run tests, open the cmd in the server directory and run the following command
+
+```bash
+  dotnet test
+```
+
+
+## Run
+   - you might need to connect it to sql server database since im using the secret in produciton.
+  
+to run the project you will need first run the server and the client.
+- server - to run the server you could build the server project and run it in vs community/ open the cmd in the server directory and run the following command: 
+
+```bash
+  dotnet run
+```
+
+- client - to run the gui you need to open the cmd in the client-terminal directory and use the following command : 
+
+```bash
+  npm start
+```
+after the server is running you could run the simulator the same way you runned the server. then you could see the project in action throught the gui.
+## Pictures
+![image](https://user-images.githubusercontent.com/98225513/233122136-231cd47e-7bcd-454a-8607-711e82d19258.png)
+the cards are expandables : 
+![image](https://user-images.githubusercontent.com/98225513/233122498-22805679-0c4d-481b-a653-d27a0eca8b06.png)
